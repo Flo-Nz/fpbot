@@ -1,0 +1,10 @@
+{
+  "name": "fpbot",
+  "version": "1.0.0",
+  "description": "Bot for First Player Discord",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "14.14.1"
+  }
+}
