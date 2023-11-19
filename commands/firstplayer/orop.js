@@ -88,13 +88,17 @@ const findOrop = async (prompt, pageToken) => {
 };
 
 export const execute = async (interaction) => {
-  const ephemeral = interaction.options.getBoolean("public");
-  await interaction.deferReply({ ephemeral: !ephemeral });
+  const isEphemeral =
+    (interaction.guildId !== "933486333756846101" &&
+      interaction.channelId !== "1175621884423966820") ||
+    !interaction.options.getBoolean("public");
+  await interaction.deferReply({ ephemeral: isEphemeral });
   const { globalName: user, id: userId } = interaction.member.user;
   const title = interaction.options.getString("titre");
 
   console.log(`Recherche demandée par ${user}. Prompt: `, title);
   const orop = await findOrop(title);
+  console.log(`Orop trouvé ? ${orop.found ? "Yes" : "No"}`);
   if (!orop.found) {
     return await interaction.editReply({
       content: `Désolé ${userMention(
