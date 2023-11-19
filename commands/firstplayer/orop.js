@@ -82,11 +82,18 @@ const findOrop = async (prompt, pageToken) => {
   }
 };
 
+const isEphemeral = (interaction) => {
+  if (interaction.guildId !== "933486333756846101") {
+    return true;
+  }
+  if (interaction.channelId === "1175621884423966820") {
+    return false;
+  }
+  return true;
+};
+
 export const execute = async (interaction) => {
-  const isEphemeral =
-    interaction.guildId !== "933486333756846101" &&
-    interaction.channelId !== "1175621884423966820";
-  await interaction.deferReply({ ephemeral: isEphemeral });
+  await interaction.deferReply({ ephemeral: isEphemeral(interaction) });
   const { globalName: user, id: userId } = interaction.member.user;
   const title = interaction.options.getString("titre");
 
