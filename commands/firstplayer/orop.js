@@ -16,11 +16,6 @@ export const data = new SlashCommandBuilder()
       .setName("titre")
       .setDescription("Titre du jeu à rechercher")
       .setRequired(true)
-  )
-  .addBooleanOption((option) =>
-    option
-      .setName("public")
-      .setDescription("`true` pour que la réponse ne soit partagée à tous")
   );
 
 const ytApiUrl = "https://youtube.googleapis.com/youtube/v3/playlistItems";
@@ -89,9 +84,8 @@ const findOrop = async (prompt, pageToken) => {
 
 export const execute = async (interaction) => {
   const isEphemeral =
-    (interaction.guildId !== "933486333756846101" &&
-      interaction.channelId !== "1175621884423966820") ||
-    !interaction.options.getBoolean("public");
+    interaction.guildId !== "933486333756846101" &&
+    interaction.channelId !== "1175621884423966820";
   await interaction.deferReply({ ephemeral: isEphemeral });
   const { globalName: user, id: userId } = interaction.member.user;
   const title = interaction.options.getString("titre");
