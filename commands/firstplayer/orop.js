@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, bold, userMention } from "discord.js";
+import { SlashCommandBuilder, bold, hyperlink, userMention } from "discord.js";
 import axios from "axios";
 import { get, includes, isEmpty, invoke } from "lodash-es";
 import moment from "moment";
@@ -115,6 +115,6 @@ export const execute = async (interaction) => {
       "On Rejoue Ou Pas"
     )} concernant ${bold(title).toUpperCase()} ! Il a été posté le ${bold(
       orop.date
-    )} et tu peux le visionner ici: ${orop.url}`,
+    )} et tu peux le visionner sur ${hyperlink("Youtube", orop.url)}`,
   });
 };
