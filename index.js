@@ -53,7 +53,7 @@ for (const file of eventFiles) {
 }
 
 // Log in to Discord with your client's token
-if (process.env.NODE_ENV === 'PROD') {
+if (process.env.ENVIRONMENT === 'PROD') {
     client.login(process.env.BOT_TOKEN);
 } else {
     client.login(process.env.BOT_DEV_TOKEN);
