@@ -9,6 +9,7 @@ import {
 } from '../../lib/ratings.js';
 import { findOrop } from '../../lib/orop.js';
 import { generateRatingReplyContent } from '../../lib/textContent.js';
+import { isEphemeral } from '../../lib/ephemeral.js';
 
 moment.locale('fr');
 
@@ -25,7 +26,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: isEphemeral(interaction) });
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')

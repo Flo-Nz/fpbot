@@ -8,6 +8,7 @@ import {
 import { findOrop } from '../../lib/orop.js';
 import { generateOropContent } from '../../lib/textContent.js';
 import { handleOropRating } from '../../lib/handleRating.js';
+import { isEphemeral } from '../../lib/ephemeral.js';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
@@ -19,16 +20,6 @@ export const data = new SlashCommandBuilder()
             .setDescription('Titre du jeu à rechercher')
             .setRequired(true)
     );
-
-const isEphemeral = (interaction) => {
-    if (
-        interaction.channelId === '1175621884423966820' ||
-        interaction.channelId === '1176664814924333157'
-    ) {
-        return false;
-    }
-    return true;
-};
 
 export const execute = async (interaction) => {
     try {
