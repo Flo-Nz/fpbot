@@ -33,7 +33,7 @@ const isEphemeral = (interaction) => {
 export const execute = async (interaction) => {
     try {
         await interaction.deferReply({ ephemeral: isEphemeral(interaction) });
-        const { globalName: username, id: userId } = interaction.user;
+        const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')
         ).toLowerCase();

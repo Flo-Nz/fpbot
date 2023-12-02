@@ -26,7 +26,7 @@ export const data = new SlashCommandBuilder()
 export const execute = async (interaction) => {
     try {
         await interaction.deferReply({ ephemeral: true });
-        const { globalName: username, id: userId } = interaction.user;
+        const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')
         ).toLowerCase();
