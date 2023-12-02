@@ -68,11 +68,11 @@ export const execute = async (interaction) => {
                 }
             }
             return await interaction.editReply({
-                content: generateRatingReplyContent(
+                content: `Jeu: ${bold(title)}\n${generateRatingReplyContent(
                     discordOrop,
                     username,
                     customId
-                ),
+                )}`,
                 components: [],
             });
         } catch (error) {
