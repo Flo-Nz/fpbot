@@ -9,6 +9,7 @@ import {
 } from '../../lib/ratings.js';
 import { findOrop } from '../../lib/orop.js';
 import { generateOropContent } from '../../lib/textContent.js';
+import { handleOropRating } from '../../lib/handleRating.js';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
@@ -43,12 +44,24 @@ export const execute = async (interaction) => {
         const orop = await findOrop(title);
         console.log('orop', orop);
         if (!orop.found) {
-            return await interaction.editReply({
+            const notFoundReply = await interaction.editReply({
                 content: `Désolé ${userMention(
                     userId
                 )}, je n'ai pas trouvé d'épisode ${bold(
                     'On Rejoue Ou Pas ?'
-                )} concernant ${title}! Tu peux toujours demander à Yoël, je ne suis pas infaillible :smile:`,
+                )} concernant ${title}! Tu peux toujours demander à Yoël, je ne suis pas infaillible :smile:\nEn revanche, n'hésite pas à noter le jeu !`,
+                components: [
+                    generateTextRatingButton(username),
+                    ratingsRow,
+                    notYetRow,
+                ],
+            });
+            return handleOropRating({
+                interaction,
+                reply: notFoundReply,
+                userId,
+                username,
+                title,
             });
         }
 
@@ -61,31 +74,13 @@ export const execute = async (interaction) => {
             ],
         });
         // Rating directly from the original reply with action buttons at the bottom
-        try {
-            const filter = (event) => event.user.id === userId;
-            const ratingResponse = await reply.awaitMessageComponent({
-                filter,
-                time: 200000,
-            });
-            const { customId } = ratingResponse;
-            if (customId !== 'notyet') {
-                await postRating(title, {
-                    userId,
-                    rating: ratingResponse.customId,
-                });
-                console.log('New Rating', {
-                    title,
-                    rating: ratingResponse.customId,
-                });
-            }
-            return await interaction.editReply({
-                components: generateRatingResponseRow(customId, username),
-            });
-        } catch (error) {
-            return await interaction.editReply({
-                components: generateRatingResponseRow('endoftime', username),
-            });
-        }
+        return handleOropRating({
+            interaction,
+            reply,
+            userId,
+            username,
+            title,
+        });
     } catch (error) {
         console.log('error', error);
         throw new Error(`Something Went Wrong, ${error.message}`);
