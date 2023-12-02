@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, bold, hyperlink, userMention } from 'discord.js';
+import { SlashCommandBuilder, bold, userMention } from 'discord.js';
 import { deburr } from 'lodash-es';
 import {
     generateRatingResponseRow,
@@ -8,6 +8,7 @@ import {
     ratingsRow,
 } from '../../lib/ratings.js';
 import { findOrop } from '../../lib/orop.js';
+import { generateOropContent } from '../../lib/textContent.js';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
@@ -52,16 +53,7 @@ export const execute = async (interaction) => {
         }
 
         const reply = await interaction.editReply({
-            content: `:partying_face: ${userMention(
-                userId
-            )}, j'ai trouvé un ${bold('On Rejoue Ou Pas')} concernant ${bold(
-                title
-            ).toUpperCase()} ! Il a été posté le ${bold(
-                orop.publishedDate
-            )} et tu peux le visionner sur ${hyperlink(
-                'Youtube',
-                orop.youtubeUrl
-            )}`,
+            content: generateOropContent(title, orop, userId),
             components: [
                 generateTextRatingButton(username),
                 ratingsRow,
