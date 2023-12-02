@@ -40,7 +40,6 @@ export const execute = async (interaction) => {
 
         console.log(`Recherche demandée par ${username}. Prompt: `, title);
         const orop = await findOrop(title);
-        console.log(`Orop trouvé ? ${orop.found ? 'Yes' : 'No'}`);
         console.log('orop', orop);
         if (!orop.found) {
             return await interaction.editReply({
@@ -74,15 +73,18 @@ export const execute = async (interaction) => {
             const filter = (event) => event.user.id === userId;
             const ratingResponse = await reply.awaitMessageComponent({
                 filter,
-                time: 200_000,
+                time: 200000,
             });
             const { customId } = ratingResponse;
             if (customId !== 'notyet') {
-                const discordOrop = await postRating(title, {
+                await postRating(title, {
                     userId,
                     rating: ratingResponse.customId,
                 });
-                console.log('discordOrop', discordOrop);
+                console.log('New Rating', {
+                    title,
+                    rating: ratingResponse.customId,
+                });
             }
             return await interaction.editReply({
                 components: generateRatingResponseRow(customId, username),

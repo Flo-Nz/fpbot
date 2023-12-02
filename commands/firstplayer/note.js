@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, inlineCode, userMention } from 'discord.js';
-import { deburr } from 'lodash-es';
+import { SlashCommandBuilder, bold, userMention } from 'discord.js';
+import { capitalize, deburr } from 'lodash-es';
 import moment from 'moment';
 import {
     generateRatingResponseRow,
@@ -8,7 +8,7 @@ import {
     ratingsRow,
 } from '../../lib/ratings.js';
 import { findOrop } from '../../lib/orop.js';
-import { generateRatingJokeContent } from '../../lib/textContent.js';
+import { generateRatingReplyContent } from '../../lib/textContent.js';
 
 moment.locale('fr');
 
@@ -34,9 +34,9 @@ export const execute = async (interaction) => {
         await findOrop(title);
 
         const reply = await interaction.editReply({
-            content: `${userMention(
-                userId
-            )}, tu peux noter le jeu "${title}" en cliquant sur un des boutons ci-dessous (ou annuler via le bouton "pas joué")`,
+            content: `${userMention(userId)}, tu peux noter le jeu "${bold(
+                capitalize(title)
+            )}" en cliquant sur un des boutons ci-dessous (ou annuler via le bouton "pas joué")`,
             components: [ratingsRow, notYetRow],
         });
         try {
@@ -44,31 +44,20 @@ export const execute = async (interaction) => {
                 time: 200000,
             });
             const { customId } = ratingResponse;
-            let content;
+            let discordOrop;
             if (customId !== 'notyet') {
-                const discordOrop = await postRating(title, {
+                discordOrop = await postRating(title, {
                     userId,
                     rating: ratingResponse.customId,
                 });
-                if (discordOrop.created) {
-                    content = `Tu es le premier à noter ${title} !`;
-                }
-                if (discordOrop.updated) {
-                    content = `Tu avais déjà noté ${title}, mais j'ai mis à jour ta note.`;
-                }
                 console.log('New Rating ! ', { title, username, customId });
-            } else {
-                content = `Pas de problème. Si tu veux noter un autre jeu, fais ${inlineCode(
-                    '/note titre_du_jeu'
-                )}, ou cherche un OROP de Yoël avec ${inlineCode(
-                    '/orop titre_du_jeu'
-                )}`;
             }
             return await interaction.editReply({
-                content: `${content || ''} ${generateRatingJokeContent(
+                content: generateRatingReplyContent(
+                    discordOrop,
                     username,
                     customId
-                )}`,
+                ),
                 components: [],
             });
         } catch (error) {
