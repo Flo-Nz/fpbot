@@ -4,6 +4,7 @@ import moment from 'moment';
 import {
     generateRatingResponseRow,
     notYetRow,
+    postFpRating,
     postRating,
     ratingsRow,
 } from '../../lib/ratings.js';
@@ -47,11 +48,24 @@ export const execute = async (interaction) => {
             const { customId } = ratingResponse;
             let discordOrop;
             if (customId !== 'notyet') {
-                discordOrop = await postRating(title, {
-                    userId,
-                    rating: ratingResponse.customId,
-                });
-                console.log('New Rating ! ', { title, username, customId });
+                if (userId === '250942701267058688') {
+                    discordOrop = await postFpRating(title, customId);
+                    console.log('New Rating By FirstPlayer ! ', {
+                        title,
+                        username,
+                        customId,
+                    });
+                } else {
+                    discordOrop = await postRating(title, {
+                        userId,
+                        rating: customId,
+                    });
+                    console.log('New Discord Rating ! ', {
+                        title,
+                        username,
+                        customId,
+                    });
+                }
             }
             return await interaction.editReply({
                 content: generateRatingReplyContent(
