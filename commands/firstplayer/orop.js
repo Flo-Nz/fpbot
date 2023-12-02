@@ -1,10 +1,8 @@
 import { SlashCommandBuilder, bold, userMention } from 'discord.js';
 import { deburr } from 'lodash-es';
 import {
-    generateRatingResponseRow,
     generateTextRatingButton,
     notYetRow,
-    postRating,
     ratingsRow,
 } from '../../lib/ratings.js';
 import { findOrop } from '../../lib/orop.js';
