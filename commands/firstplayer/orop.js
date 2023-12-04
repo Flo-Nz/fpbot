@@ -8,7 +8,6 @@ import {
 import { findOrop } from '../../lib/orop.js';
 import { generateOropContent } from '../../lib/textContent.js';
 import { handleOropRating } from '../../lib/handleRating.js';
-import { isEphemeral } from '../../lib/ephemeral.js';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
@@ -23,7 +22,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: isEphemeral(interaction) });
+        await interaction.deferReply({ ephemeral: true });
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')
@@ -31,7 +30,6 @@ export const execute = async (interaction) => {
 
         console.log(`Recherche demandée par ${username}. Prompt: `, title);
         const orop = await findOrop(title);
-        console.log('orop', orop);
         if (!orop.found) {
             const notFoundReply = await interaction.editReply({
                 content: `Désolé ${userMention(
@@ -45,7 +43,7 @@ export const execute = async (interaction) => {
                     notYetRow,
                 ],
             });
-            return handleOropRating({
+            return await handleOropRating({
                 interaction,
                 reply: notFoundReply,
                 userId,
@@ -63,7 +61,7 @@ export const execute = async (interaction) => {
             ],
         });
         // Rating directly from the original reply with action buttons at the bottom
-        return handleOropRating({
+        return await handleOropRating({
             interaction,
             reply,
             userId,
