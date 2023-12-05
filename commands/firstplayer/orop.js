@@ -8,6 +8,7 @@ import {
 import { findOrop } from '../../lib/orop.js';
 import { generateOropContent } from '../../lib/textContent.js';
 import { handleOropRating } from '../../lib/handleRating.js';
+import { isEphemeral } from '../../lib/ephemeral.js';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
@@ -22,7 +23,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: isEphemeral() });
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')
