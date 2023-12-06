@@ -37,8 +37,8 @@ export const execute = async (interaction) => {
         await findOrop(title);
 
         const commandRating = interaction.options.getInteger('rating');
-        console.log('COMMAND RATING', commandRating);
         if (commandRating) {
+            console.log('[NOTE] Command Rating');
             return await handleNoteRating({
                 interaction,
                 userId,
@@ -48,6 +48,7 @@ export const execute = async (interaction) => {
             });
         }
 
+        console.log('[NOTE] Command Buttons');
         const reply = await interaction.editReply({
             content: `${userMention(userId)}, tu peux noter le jeu "${bold(
                 capitalize(title)
