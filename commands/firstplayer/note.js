@@ -2,7 +2,6 @@ import { SlashCommandBuilder, bold, userMention } from 'discord.js';
 import { capitalize, deburr } from 'lodash-es';
 import moment from 'moment';
 import { notYetRow, ratingsRow } from '../../lib/ratings.js';
-import { findOrop } from '../../lib/orop.js';
 import { handleNoteRating } from '../../lib/handleRating.js';
 
 moment.locale('fr');
@@ -33,8 +32,6 @@ export const execute = async (interaction) => {
         const title = deburr(
             interaction.options.getString('titre')
         ).toLowerCase();
-        // We eventually want to add a new orop entry in DB.
-        await findOrop(title);
 
         const commandRating = interaction.options.getInteger('rating');
         if (commandRating) {

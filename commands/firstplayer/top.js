@@ -1,85 +1,74 @@
-import { SlashCommandBuilder, bold, userMention } from 'discord.js';
-import { deburr } from 'lodash-es';
+import { SlashCommandBuilder, userMention } from 'discord.js';
+import { getTopRated, getTopSearched } from '../../lib/top.js';
 import {
-    generateTextRatingButton,
-    notYetRow,
-    ratingsRow,
-} from '../../lib/ratings.js';
-import { findOrop } from '../../lib/orop.js';
-import { generateOropContent } from '../../lib/textContent.js';
-import { handleOropRating } from '../../lib/handleRating.js';
-import { isEphemeral } from '../../lib/ephemeral.js';
+    generateTopRatedEmbed,
+    generateTopSearchedEmbed,
+} from '../../lib/embed.js';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
     .setName('top')
-    .setDescription(
-        'Renvoie le top notes du Discord et/ou de Yoël, ou le top recherchés par le Discord !'
-    )
+    .setDescription('Top notes ou Top recherches')
     .addSubcommand((subcommand) =>
         subcommand
             .setName('notes')
-            .setDescription('Le top des notes de Yoël ou du Discord')
+            .setDescription('Top notes de Yoel ou du Discord')
             .addStringOption((option) =>
                 option
                     .setName('filter')
+                    .setDescription('Notes de Yoël ou tout le Discord ?')
                     .addChoices(
                         { name: 'firstplayer', value: 'firstplayer' },
                         { name: 'discord', value: 'discord' }
                     )
+                    .setRequired(true)
             )
     )
     .addSubcommand((subcommand) =>
-        subcommand.setName('server').setDescription('Info about the server')
+        subcommand
+            .setName('recherches')
+            .setDescription('Top des recherches avec orop de Yoel ou au global')
+            .addBooleanOption((option) =>
+                option
+                    .setName('firstplayer')
+                    .setDescription(
+                        "Jeux dont un épisode d'OROP est disponible"
+                    )
+                    .setRequired(true)
+            )
     );
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: isEphemeral(interaction) });
-        const { username, id: userId } = interaction.user;
-        const title = deburr(
-            interaction.options.getString('titre')
-        ).toLowerCase();
-
-        console.log(`Recherche demandée par ${username}. Prompt: `, title);
-        const orop = await findOrop(title);
-        if (!orop.found) {
-            const notFoundReply = await interaction.editReply({
-                content: `Désolé ${userMention(
-                    userId
-                )}, je n'ai pas trouvé d'épisode ${bold(
-                    'On Rejoue Ou Pas ?'
-                )} concernant ${title}! Tu peux toujours demander à Yoël, je ne suis pas infaillible :smile:\nEn revanche, n'hésite pas à noter le jeu !`,
-                components: [
-                    generateTextRatingButton(username),
-                    ratingsRow,
-                    notYetRow,
-                ],
-            });
-            return await handleOropRating({
-                interaction,
-                reply: notFoundReply,
-                userId,
-                username,
-                title,
+        await interaction.deferReply({ ephemeral: true });
+        const { id: userId } = interaction.user;
+        console.log(
+            'interaction bool',
+            interaction.options.getBoolean('firstplayer')
+        );
+        const subcommand = interaction.options.getSubcommand();
+        if (subcommand === 'recherches') {
+            const withVideo = interaction.options.getBoolean('firstplayer');
+            const top = await getTopSearched(withVideo);
+            console.log(`[TOP SEARCHED] with orop :${withVideo}`);
+            return await interaction.editReply({
+                content: `${userMention(userId)}, voici le top demandé !`,
+                embeds: [generateTopSearchedEmbed(top, withVideo)],
             });
         }
 
-        const reply = await interaction.editReply({
-            content: generateOropContent(title, orop, userId),
-            components: [
-                generateTextRatingButton(username),
-                ratingsRow,
-                notYetRow,
-            ],
-        });
-        // Rating directly from the original reply with action buttons at the bottom
-        return await handleOropRating({
-            interaction,
-            reply,
-            userId,
-            username,
-            title,
+        if (subcommand === 'notes') {
+            const onlyFP = interaction.options.getString('filter');
+            const top = await getTopRated(onlyFP);
+            console.log(`[TOP RATED] with onlyFP: ${onlyFP}`);
+            return await interaction.editReply({
+                content: `${userMention(userId)}, voici le top demandé !`,
+                embeds: [generateTopRatedEmbed(top, onlyFP)],
+            });
+        }
+
+        return await interaction.editReply({
+            content: "Je n'ai pas compris la demande.",
         });
     } catch (error) {
         console.log('error', error);
