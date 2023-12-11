@@ -52,7 +52,6 @@ export const execute = async (interaction) => {
                 title,
             });
         }
-
         const reply = await interaction.editReply({
             content: generateOropContent(title, orop, userId),
             components: [
