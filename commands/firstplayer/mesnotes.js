@@ -8,6 +8,8 @@ import {
     getUserRatings,
     nextRatingsRow,
     noMoreRatingsRow,
+    previousAndNextRatingsRow,
+    previousRatingsRow,
 } from '../../lib/mesnotes.js';
 import { upperCase } from 'lodash-es';
 import { emojisLib } from '../../lib/utils.js';
@@ -22,10 +24,8 @@ const getRatingsFields = (userRatings) => {
     const fields = [];
     for (const game of userRatings) {
         fields.push({
-            name: `${bold(upperCase(game.title[0]))} ${
-                emojisLib[game.discordOrop.ratings[0].rating]
-            }`,
-            value: `Moy. Discord: ${emojisLib[game.discordRating]}`,
+            name: `${bold(upperCase(game.title[0]))}`,
+            value: emojisLib[game.discordOrop.ratings[0].rating],
             inline: true,
         });
     }
@@ -50,17 +50,36 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
     });
 
     collector.on('collect', async (interact) => {
-        skip = skip + 12;
+        const { customId } = interact;
         interact.deferUpdate();
-        const newUserRatings = await getUserRatings(userId, skip);
-        const keepGoing = newUserRatings.length === 12;
-        interaction.editReply({
-            content: keepGoing
-                ? 'Clique sur le bouton pour voir la suite !'
-                : 'On a fait le tour de tes notes !',
-            embeds: generateUserRatingsEmbed(getRatingsFields(newUserRatings)),
-            components: keepGoing ? [nextRatingsRow] : [noMoreRatingsRow],
-        });
+        if (customId === 'nextratings') {
+            skip = skip + 12;
+            const newUserRatings = await getUserRatings(userId, skip);
+            const keepGoing = newUserRatings.length === 12;
+            interaction.editReply({
+                content: keepGoing
+                    ? 'Clique sur le bouton pour voir la suite !'
+                    : 'On a fait le tour de tes notes !',
+                embeds: generateUserRatingsEmbed(
+                    getRatingsFields(newUserRatings)
+                ),
+                components: keepGoing
+                    ? [previousAndNextRatingsRow]
+                    : [previousRatingsRow],
+            });
+        }
+        if (customId === 'previousratings') {
+            skip = skip - 12;
+            const newUserRatings = await getUserRatings(userId, skip);
+            interaction.editReply({
+                content: 'Clique sur le bouton pour voir la suite !',
+                embeds: generateUserRatingsEmbed(
+                    getRatingsFields(newUserRatings)
+                ),
+                components:
+                    skip === 0 ? [nextRatingsRow] : [previousAndNextRatingsRow],
+            });
+        }
     });
 
     collector.on('end', () =>
