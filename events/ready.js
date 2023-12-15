@@ -5,7 +5,9 @@ import { oneDayOneGame } from '../lib/cronTasks.js';
 export const name = Events.ClientReady;
 export const once = true;
 
-const oneDayOneGameSchedule = isProd ? '0 9 * * *' : '* * * * *';
+const oneDayOneGameSchedule = isProd
+    ? process.env.UN_JOUR_UN_JEU_CRON
+    : process.env.UN_JOUR_UN_JEU_CRON_DEV;
 
 export const execute = async (client) => {
     try {
