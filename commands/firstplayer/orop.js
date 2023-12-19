@@ -54,11 +54,7 @@ export const execute = async (interaction) => {
         }
         const reply = await interaction.editReply({
             content: generateOropContent(title, orop, userId),
-            components: [
-                generateTextRatingButton(username),
-                ratingsRow,
-                notYetRow,
-            ],
+            components: [generateTextRatingButton(), ratingsRow, notYetRow],
         });
         // Rating directly from the original reply with action buttons at the bottom
         return await handleOropRating({
