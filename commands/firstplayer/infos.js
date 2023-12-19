@@ -26,6 +26,7 @@ export const execute = async (interaction) => {
         const game = await getOneOrop(title);
 
         if (!game) {
+            console.log('[INFOS] - Not found with title ', title);
             const reply = await interaction.editReply({
                 content: `Désolé, le jeu ${interaction.options.getString(
                     'titre'
@@ -41,6 +42,7 @@ export const execute = async (interaction) => {
                 title,
             });
         }
+        console.log('[INFOS] - Found with title', title);
         const reply = await interaction.editReply({
             content: "Voici les informations que j'ai trouvé concernant ce jeu",
             embeds: [generateGameInfos(game, userId)],
