@@ -48,7 +48,6 @@ export const execute = async (interaction) => {
                 interaction,
                 reply: notFoundReply,
                 userId,
-                username,
                 title,
             });
         }
@@ -61,7 +60,6 @@ export const execute = async (interaction) => {
             interaction,
             reply,
             userId,
-            username,
             title,
         });
     } catch (error) {
