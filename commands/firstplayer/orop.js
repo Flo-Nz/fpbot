@@ -2,8 +2,8 @@ import { SlashCommandBuilder, bold, userMention } from 'discord.js';
 import { deburr } from 'lodash-es';
 import {
     generateTextRatingButton,
-    notYetRow,
     ratingsRow,
+    ratingsRow2,
 } from '../../lib/ratings.js';
 import { findOrop } from '../../lib/orop.js';
 import { generateOropContent } from '../../lib/textContent.js';
@@ -39,9 +39,9 @@ export const execute = async (interaction) => {
                     'On Rejoue Ou Pas ?'
                 )} concernant ${title}! Tu peux toujours demander à Yoël, je ne suis pas infaillible :smile:\nEn revanche, n'hésite pas à noter le jeu !`,
                 components: [
-                    generateTextRatingButton(username),
+                    generateTextRatingButton(),
                     ratingsRow,
-                    notYetRow,
+                    ratingsRow2,
                 ],
             });
             return await handleOropRating({
@@ -53,7 +53,7 @@ export const execute = async (interaction) => {
         }
         const reply = await interaction.editReply({
             content: generateOropContent(title, orop, userId),
-            components: [generateTextRatingButton(), ratingsRow, notYetRow],
+            components: [generateTextRatingButton(), ratingsRow, ratingsRow2],
         });
         // Rating directly from the original reply with action buttons at the bottom
         return await handleOropRating({
