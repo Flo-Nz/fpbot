@@ -11,7 +11,7 @@ import {
     previousAndNextRatingsRow,
     previousRatingsRow,
 } from '../../lib/mesnotes.js';
-import { upperCase } from 'lodash-es';
+import { filter, upperCase } from 'lodash-es';
 import { emojisLib } from '../../lib/utils.js';
 import { generateUserRatingsEmbed } from '../../lib/embed.js';
 
@@ -20,12 +20,16 @@ export const data = new SlashCommandBuilder()
     .setName('mesnotes')
     .setDescription('La liste de toutes les notes que tu as donné');
 
-const getRatingsFields = (userRatings) => {
+const getRatingsFields = (userRatings, userId) => {
     const fields = [];
     for (const game of userRatings) {
+        const userRating = filter(
+            game.discordOrop.ratings,
+            (rating) => rating.userId === userId
+        );
         fields.push({
             name: `${bold(upperCase(game.title[0]))}`,
-            value: emojisLib[game.discordOrop.ratings[0].rating],
+            value: emojisLib[userRating.rating],
             inline: true,
         });
     }
@@ -40,7 +44,7 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
     }
     const message = await interaction.editReply({
         content: 'Voici ton top',
-        embeds: generateUserRatingsEmbed(getRatingsFields(userRatings)),
+        embeds: generateUserRatingsEmbed(getRatingsFields(userRatings, userId)),
         components: [nextRatingsRow],
     });
 
@@ -61,7 +65,7 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
                     ? 'Clique sur le bouton pour voir la suite !'
                     : 'On a fait le tour de tes notes !',
                 embeds: generateUserRatingsEmbed(
-                    getRatingsFields(newUserRatings)
+                    getRatingsFields(newUserRatings, userId)
                 ),
                 components: keepGoing
                     ? [previousAndNextRatingsRow]
@@ -74,7 +78,7 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
             interaction.editReply({
                 content: 'Clique sur le bouton pour voir la suite !',
                 embeds: generateUserRatingsEmbed(
-                    getRatingsFields(newUserRatings)
+                    getRatingsFields(newUserRatings, userId)
                 ),
                 components:
                     skip === 0 ? [nextRatingsRow] : [previousAndNextRatingsRow],
