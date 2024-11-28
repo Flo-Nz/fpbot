@@ -29,7 +29,7 @@ const getRatingsFields = (userRatings, userId) => {
         );
         fields.push({
             name: `${bold(upperCase(game.title[0]))}`,
-            value: emojisLib[userRating.rating],
+            value: emojisLib[userRating[0].rating],
             inline: true,
         });
     }
