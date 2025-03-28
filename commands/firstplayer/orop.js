@@ -48,7 +48,7 @@ export const execute = async (interaction) => {
                 interaction,
                 reply: notFoundReply,
                 userId,
-                title,
+                title: interaction.options.getString('titre'),
             });
         }
         const reply = await interaction.editReply({
