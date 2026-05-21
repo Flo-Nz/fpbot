@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, userMention } from 'discord.js';
+import { SlashCommandBuilder, userMention, MessageFlags } from 'discord.js';
 import { getTopRated, getTopSearched } from '../../lib/top.js';
 import {
     generateTopRatedEmbed,
@@ -40,7 +40,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const { id: userId } = interaction.user;
         console.log(
             'interaction bool',

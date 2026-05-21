@@ -12,10 +12,7 @@ const oneDayOneGameSchedule = isProd
 export const execute = async (client) => {
     try {
         console.log(`Ready ! Logged in as ${client.user.tag}`);
-        const oneDayOneGameCron = cron.schedule(oneDayOneGameSchedule, () =>
-            oneDayOneGame(client)
-        );
-        oneDayOneGameCron.start();
+        cron.schedule(oneDayOneGameSchedule, () => oneDayOneGame(client));
     } catch (error) {
         console.log('Ready Event - error ', error);
     }

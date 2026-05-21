@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, bold, userMention } from 'discord.js';
+import { SlashCommandBuilder, bold, userMention, MessageFlags } from 'discord.js';
 import { deburr } from 'lodash-es';
 import {
     generateTextRatingButton,
@@ -23,7 +23,9 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: isEphemeral(interaction) });
+        await interaction.deferReply({
+            flags: isEphemeral(interaction) ? MessageFlags.Ephemeral : 0,
+        });
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')
@@ -48,7 +50,7 @@ export const execute = async (interaction) => {
                 interaction,
                 reply: notFoundReply,
                 userId,
-                title: interaction.options.getString('titre'),
+                title,
             });
         }
         const reply = await interaction.editReply({

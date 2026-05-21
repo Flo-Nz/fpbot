@@ -1,10 +1,10 @@
-import { SlashCommandBuilder, bold, userMention } from 'discord.js';
-import { capitalize, deburr } from 'lodash-es';
-import moment from 'moment';
+import { SlashCommandBuilder, bold, userMention, MessageFlags } from 'discord.js';
+import { deburr } from 'lodash-es';
 import { notYetRow, ratingsRow } from '../../lib/ratings.js';
 import { handleNoteRating } from '../../lib/handleRating.js';
 
-moment.locale('fr');
+const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 
 // Orop stands for "On rejoue ou pas"
 export const data = new SlashCommandBuilder()
@@ -27,7 +27,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')

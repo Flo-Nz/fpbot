@@ -15,17 +15,40 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const commands = [];
-// Grab all the command files from the commands directory you created earlier
+// Grab all the command files from the commands directory
 const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+const items = fs.readdirSync(foldersPath);
 
-for (const folder of commandFolders) {
-    // Grab all the command files from the commands directory you created earlier
+// Handle root level command files
+const rootCommands = items.filter((item) => {
+    const itemPath = path.join(foldersPath, item);
+    return fs.statSync(itemPath).isFile() && item.endsWith('.js');
+});
+
+for (const file of rootCommands) {
+    const filePath = path.join(foldersPath, file);
+    const command = await import(filePath);
+    const { data, execute } = command;
+    if (data && execute) {
+        commands.push(command.data.toJSON());
+    } else {
+        console.log(
+            `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        );
+    }
+}
+
+// Handle commands in subdirectories
+const folders = items.filter((item) => {
+    const itemPath = path.join(foldersPath, item);
+    return fs.statSync(itemPath).isDirectory();
+});
+
+for (const folder of folders) {
     const commandsPath = path.join(foldersPath, folder);
     const commandFiles = fs
         .readdirSync(commandsPath)
         .filter((file) => file.endsWith('.js'));
-    // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
         const command = await import(filePath);
@@ -57,6 +80,13 @@ const rest = new REST().setToken(token);
         console.log(
             `Successfully reloaded ${data.length} application (/) commands.`
         );
+        for (const command of commands) {
+            console.log(
+                `- ${command.name}: ${command.description} (options: ${
+                    command.options?.length ?? 0
+                })`
+            );
+        }
     } catch (error) {
         // And of course, make sure you catch and log any errors!
         console.error(error);

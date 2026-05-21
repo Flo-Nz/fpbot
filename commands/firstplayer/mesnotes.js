@@ -1,6 +1,7 @@
 import {
     ComponentType,
     SlashCommandBuilder,
+    MessageFlags,
     bold,
     inlineCode,
 } from 'discord.js';
@@ -51,16 +52,17 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
     const collector = message.createMessageComponentCollector({
         componentType: ComponentType.Button,
         time: 200000,
+        dispose: true,
     });
 
     collector.on('collect', async (interact) => {
         const { customId } = interact;
-        interact.deferUpdate();
+        interact.deferUpdate().catch(() => {});
         if (customId === 'nextratings') {
             skip = skip + 12;
             const newUserRatings = await getUserRatings(userId, skip);
             const keepGoing = newUserRatings.length === 12;
-            interaction.editReply({
+            await interaction.editReply({
                 content: keepGoing
                     ? 'Clique sur le bouton pour voir la suite !'
                     : 'On a fait le tour de tes notes !',
@@ -75,7 +77,7 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
         if (customId === 'previousratings') {
             skip = skip - 12;
             const newUserRatings = await getUserRatings(userId, skip);
-            interaction.editReply({
+            await interaction.editReply({
                 content: 'Clique sur le bouton pour voir la suite !',
                 embeds: generateUserRatingsEmbed(
                     getRatingsFields(newUserRatings, userId)
@@ -98,7 +100,7 @@ const getOrUpdateUserRatings = async (interaction, userId) => {
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const { id: userId } = interaction.user;
         return await getOrUpdateUserRatings(interaction, userId);
     } catch (error) {

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 import { deburr } from 'lodash-es';
 import { generateGameInfos } from '../../lib/embed.js';
 import { getOneOrop } from '../../lib/cronTasks.js';
@@ -18,7 +18,7 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')

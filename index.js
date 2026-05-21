@@ -1,9 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// Require the necessary discord.js classes
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import 'dotenv/config';
+
+// Catch unhandled promise rejections to avoid silent crashes
+process.on('unhandledRejection', (error) => {
+    console.error('[UNHANDLED REJECTION]', error);
+});
 
 // Replicate dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -14,9 +18,34 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+const items = fs.readdirSync(foldersPath);
 
-for (const folder of commandFolders) {
+// Handle root level command files first
+const rootCommands = items.filter(item => {
+    const itemPath = path.join(foldersPath, item);
+    return fs.statSync(itemPath).isFile() && item.endsWith('.js');
+});
+
+for (const file of rootCommands) {
+    const filePath = path.join(foldersPath, file);
+    const command = await import(filePath);
+    const { data, execute } = command;
+    if (data && execute) {
+        client.commands[data.name] = command;
+    } else {
+        console.log(
+            `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        );
+    }
+}
+
+// Handle commands in subdirectories
+const folders = items.filter(item => {
+    const itemPath = path.join(foldersPath, item);
+    return fs.statSync(itemPath).isDirectory();
+});
+
+for (const folder of folders) {
     const commandsPath = path.join(foldersPath, folder);
     const commandFiles = fs
         .readdirSync(commandsPath)
@@ -25,7 +54,6 @@ for (const folder of commandFolders) {
         const filePath = path.join(commandsPath, file);
         const command = await import(filePath);
         const { data, execute } = command;
-        // Set a new item in the Collection with the key as the command name and the value as the exported module
         if (data && execute) {
             client.commands[data.name] = command;
         } else {
