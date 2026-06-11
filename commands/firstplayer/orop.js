@@ -23,9 +23,9 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (interaction) => {
     try {
-        await interaction.deferReply({
-            flags: isEphemeral(interaction) ? MessageFlags.Ephemeral : 0,
-        });
+        await interaction.deferReply(
+            isEphemeral(interaction) ? { flags: MessageFlags.Ephemeral } : {}
+        );
         const { username, id: userId } = interaction.user;
         const title = deburr(
             interaction.options.getString('titre')
